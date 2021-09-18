@@ -223,7 +223,10 @@ class Reader(object):
                 if 'reply_count' in message._message or 'replies' in message._message:
                     #   Identify and save where we are
                     reply_list = []
-                    for reply in message._message['replies']:
+                    # Quick patch for "KeyError: 'replies'" error message, as described in
+                    # https://github.com/hfaran/slack-export-viewer/issues/121#issuecomment-607478831
+                    #for reply in message._message['replies']:
+                    for reply in message._message.get('replies', []):
                         reply_list.append(reply)
                     reply_objects = []
                     for item in reply_list:
