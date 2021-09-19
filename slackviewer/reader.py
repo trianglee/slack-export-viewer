@@ -165,6 +165,14 @@ class Reader(object):
 
             # gets path to dm directory that holds the json archive
             dir_path = os.path.join(self._PATH, name)
+
+            # Check that the directory exists.
+            # If it doesn't try to add a prefix to it, because some channel
+            # names aren't valid Windows directory names (like "com4"), and slack-export
+            # adds a prefix to work-around tihs.
+            if not os.path.exists(dir_path):
+                dir_path = os.path.join(self._PATH, "c-" + name)
+
             messages = []
             # array of all days archived
             day_files = glob.glob(os.path.join(dir_path, "*.json"))
@@ -178,11 +186,11 @@ class Reader(object):
             for day in sorted(day_files):
                 with io.open(os.path.join(self._PATH, day), encoding="utf8") as f:
                     # loads all messages
-                    day_messages = json.load(f)   
+                    day_messages = json.load(f)
 
                     # sorts the messages in the json file
-                    day_messages.sort(key=Reader._extract_time) 
-                 
+                    day_messages.sort(key=Reader._extract_time)
+
                     messages.extend([Message(formatter, d) for d in day_messages])
 
             chats[name] = messages
